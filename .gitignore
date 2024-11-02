@@ -45,6 +45,8 @@ compile_commands.json
 *.includes
 *.idb
 *.exp
+*.dll
+*.ilk
 
 # Other stuff
 *.log
@@ -53,3 +55,5 @@ compile_commands.json
 .vscode/*
 !.vscode/extensions.json
 .DS_Store
+
+build*/
