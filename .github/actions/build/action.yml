@@ -14,9 +14,6 @@ inputs:
   build-target-type:
     default: 'template_debug'
     description: Build type (template_debug or template_release).
-  scons-cache:
-    default: .scons-cache/
-    description: Scons cache location.
   em_version:
     default: 3.1.62
     description: Emscripten version.
@@ -88,33 +85,15 @@ runs:
         python-version: "3.x"
         # Optional - x64 or x86 architecture, defaults to x64
         architecture: "x64"
-    - name: Setup scons
-      shell: bash
-      run: |
-        python -c "import sys; print(sys.version)"
-        python -m pip install scons==4.4.0
-        scons --version
-# Build
-    - name: Cache .scons_cache
-      uses: actions/cache@v4
-      with:
-        path: |
-          ${{ github.workspace }}/${{ inputs.gdextension-location }}/${{ inputs.scons-cache }}/
-          ${{ github.workspace }}/${{ inputs.godot-cpp }}/${{ inputs.scons-cache }}/
-        key: ${{ inputs.platform }}_${{ inputs.arch }}_${{ inputs.float-precision }}_${{ inputs.build-target-type }}_cache
-# Build godot-cpp
-    - name: Build godot-cpp Debug Build
+# Configure
+    - name: Configure CMake
       shell: sh
-      env:
-        SCONS_CACHE: ${{ github.workspace }}/${{ inputs.godot-cpp }}/${{ inputs.scons-cache }}/
       run: |
-        scons target=${{ inputs.build-target-type }} platform=${{ inputs.platform }} arch=${{ inputs.arch }} generate_bindings=yes precision=${{ inputs.float-precision }}
+        cmake -B build -S .
       working-directory: ${{ inputs.godot-cpp }}
-# Build gdextension
+# Build
     - name: Build GDExtension Debug Build
       shell: sh
-      env:
-        SCONS_CACHE: ${{ github.workspace }}/${{ inputs.gdextension-location }}/${{ inputs.scons-cache }}/
       run: |
-        scons target=${{ inputs.build-target-type }} platform=${{ inputs.platform }} arch=${{ inputs.arch }} precision=${{ inputs.float-precision }}
+        cmake --build build
       working-directory: ${{ inputs.gdextension-location }}
